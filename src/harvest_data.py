@@ -28,6 +28,7 @@ def query_single_category(category,skos_concept, N):
       'qf':f'(skos_concept:"{skos_concept}" AND TYPE:IMAGE )', 
       'query':'*', 
       'wskey':'api2demo',
+      'sort':'random_seed123,europeana_id',
   }
 
   CHO_list = []

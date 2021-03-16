@@ -6,7 +6,7 @@ We would like to explore automatic enrichments based on content, and we decided 
 
 This repository builds a training dataset using the EF Search API, and allows to train a model using the deep learning pytorch framework.
 
-## Installation
+## Setup
 
 Clone this repository:
 
@@ -44,18 +44,22 @@ We are ready to proceed with training our model! To make sure that we evaluate t
 
 `python src/train.py --data_dir training_data --epochs 100 --patience 10 --experiment_name model_training --img_aug 0.5`
 
-The code for training a single split is in the notebook ['jupyter notebook training'](https://github.com/europeana/rd-img-classification-pilot/blob/main/notebooks/train.ipynb)
+to do: point to the notebook for analyzing the crossvalidation data
+
+
+The code for training a single split is in the notebook [jupyter notebook training](https://github.com/europeana/rd-img-classification-pilot/blob/main/notebooks/train.ipynb)
 
 
 ## Inference
 
+`class_index.json`
+
 `checkpoint.pth`
 
-['jupyter notebook inference'](https://github.com/europeana/rd-img-classification-pilot/blob/main/notebooks/inference.ipynb)
+[jupyter notebook inference](https://github.com/europeana/rd-img-classification-pilot/blob/main/notebooks/inference.ipynb)
 
 #to do: link to colab
 
-#to do: script for inference from a folder with images. Include confidence score
 
 
 

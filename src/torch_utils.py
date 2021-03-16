@@ -1,5 +1,7 @@
 import time
 import os
+import json
+
 import pandas as pd
 import numpy as np
 from PIL import Image
@@ -64,8 +66,7 @@ class TrainingDataset(Dataset):
             idx = idx.tolist()
 
         img_path = self.X[idx]
-        img, label = Image.open(img_path), self.y[idx]
-        img = img.convert('RGB')
+        img, label = Image.open(img_path).convert('RGB'), self.y[idx]
         if self.transform:
             img = self.transform(img)
 
@@ -208,7 +209,6 @@ def make_train_val_test_splits(X,y,**kwargs):
 
 
 def save_class_index(class_index,path):
-    import json
     with open(os.path.join(path,'class_index.json'),'w') as f:
         json.dump(class_index,f)
     
@@ -325,7 +325,6 @@ def evaluate(**kwargs):
     loss_function = kwargs.get('loss_function')
     dataloader = kwargs.get('dataloader')
     device = kwargs.get('device')
-    #encoding_dict = kwargs.get('class_index_dict')
     
 
     n_labels = len(list(set(dataloader.dataset.y)))
@@ -365,11 +364,6 @@ def save_XAI(N = 20, **kwargs):
     """
     Comment
     """
-
-    #to do: change name of function
-
-    #to do: return list of path to original images, gt, pred, and XAI images
-    
     
     requ_args = ['model','test_images_list','ground_truth_list','predictions_list','saving_dir','device','class_index_dict']
     check_args(kwargs,requ_args)
@@ -480,6 +474,7 @@ def train_crossvalidation(**kwargs):
 
     # GPU or CPU
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    print(device)
 
     #set loss
     if weighted_loss:
