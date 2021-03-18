@@ -35,6 +35,11 @@ Once the vocabulary is defined, we can query the Europeana Search API for CHOs i
 
 The resulting table should have the columns `category`, `skos_concept`, `URI`, `URL`, `ID`. This allows to uniquely identify the CHOs and the images, and potentially use Europeana's [Record API](https://pro.europeana.eu/page/record) for retrieving further information about the objects. We have included the dataset `dataset.csv` as an example of querying 3000 CHOs per category.
 
+ (TO DO) Remove images present in evaluation data
+
+`python src/remove_test_from_train.py --training_set dataset_3000_random.csv --evaluation_set eval_dataset.csv --saving_dir .`
+
+
 Once we have the URL for the images we will save them in disk under directories corresponding to the different categories. This step is required for training the model. We can do that by specifying the path to the dataset in csv format and the directory for the images.
 
 `python src/download_images.py --csv_path dataset_3000.csv --saving_dir training_data`
@@ -61,6 +66,8 @@ The code for training a single split is in the notebook [jupyter notebook traini
 [jupyter notebook inference](https://github.com/europeana/rd-img-classification-pilot/blob/main/notebooks/inference.ipynb)
 
 #to do: link to colab
+
+[colab notebook](https://github.com/europeana/rd-img-classification-pilot/blob/main/notebooks/inference.ipynb)
 
 
 
