@@ -67,7 +67,11 @@ The code for training a single split is in the notebook [jupyter notebook traini
 
 #to do: link to colab
 
-[colab notebook](https://github.com/europeana/rd-img-classification-pilot/blob/main/notebooks/inference.ipynb)
+[colab notebook inference search API](https://colab.research.google.com/drive/1B3S_DYQ6UtCYGaScygcf_BZa0Ifml4SR?usp=sharing#offline=true&sandboxMode=true)
+
+[colab notebook inference evaluation set](https://colab.research.google.com/drive/1Ma8O1hWhUNRlrJBDZO4Rhwzg4MlAVAFa?usp=sharing#offline=true&sandboxMode=true)
+
+
 
 
 
