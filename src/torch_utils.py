@@ -31,6 +31,29 @@ from gradcam import *
 from imgaug import augmenters as iaa
 
 
+def save_class_index(class_index,path):
+    with open(os.path.join(path,'class_index.json'),'w') as f:
+        json.dump(class_index,f)
+
+def load_model(root_path, device, resnet_size = 34):
+
+    with open(os.path.join(root_path,'class_index.json'),'r') as f:
+        class_index_dict = json.load(f)
+
+    class_index_dict = {int(k):v for k,v in class_index_dict.items()}
+
+    checkpoint_path = os.path.join(root_path,'checkpoint.pth')
+
+    model = ResNet(resnet_size,len(class_index_dict))
+    if not torch.cuda.is_available():
+        model.load_state_dict(torch.load(checkpoint_path,map_location=torch.device('cpu')))
+    else:
+        model.load_state_dict(torch.load(checkpoint_path))
+
+    model = model.to(device)
+    model.eval()
+
+    return model, class_index_dict
 
 def check_args(kwargs,requ_args):
     for arg_name in requ_args:
@@ -208,9 +231,7 @@ def make_train_val_test_splits(X,y,**kwargs):
     return splits_list
 
 
-def save_class_index(class_index,path):
-    with open(os.path.join(path,'class_index.json'),'w') as f:
-        json.dump(class_index,f)
+
     
 
 def train(epochs = 100, patience = 10,**kwargs):
@@ -576,8 +597,8 @@ def train_crossvalidation(**kwargs):
 
 
 
-def save_model(net,model_path):
-    torch.save(net.state_dict(), model_path)
+# def save_model(net,model_path):
+#     torch.save(net.state_dict(), model_path)
 
 #plotting
 def mean_std_metric(metric):
