@@ -360,7 +360,7 @@ def evaluate(**kwargs):
 
     return metrics_dict, ground_truth_list, predictions_list, img_path_list
 
-def save_XAI(N = 20, **kwargs):
+def save_XAI(**kwargs):
     """
     Comment
     """
@@ -375,8 +375,8 @@ def save_XAI(N = 20, **kwargs):
     saving_dir = kwargs.get('saving_dir')
     device = kwargs.get('device')
     class_index_dict = kwargs.get('class_index_dict')
+    N = kwargs.get('N',20)
 
-    
     model.eval()
     
     transform = transforms.Compose([
@@ -384,6 +384,9 @@ def save_XAI(N = 20, **kwargs):
     transforms.ToTensor(),
     transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
         ])
+
+    #layer for the visualization
+    heatmap_layer = model.net.layer4[1].conv2
 
     XAI_path = os.path.join(saving_dir,'XAI')
     create_dir(XAI_path)
@@ -397,26 +400,31 @@ def save_XAI(N = 20, **kwargs):
     for img_path,label,pred in zip(sample_img_path_list,sample_gt_list,sample_pred_list):
         #load img
         image = Image.open(img_path).convert('RGB')
-        #layer for the visualization
-        heatmap_layer = model.net.layer4[1].conv2
+
         #apply gradcam
-        image_interpretable,_,_ = grad_cam(model, image, heatmap_layer, transform,device)
-        #save XAI
-        fname = os.path.split(img_path)[1]
-        
+        category_list, confidence_list, XAI_list = predict_grad_cam(
+            model = model, 
+            class_index_dict = class_index_dict,
+            image = image,
+            heatmap_layer = heatmap_layer, 
+            transform = transform, 
+            device = device, 
+            thres = 0.3, 
+            max_pred = 5)
+
         ground_truth = class_index_dict[label.item()]
         prediction = class_index_dict[pred.item()]
+        fname = os.path.split(img_path)[1]
+        saving_path = os.path.join(XAI_path,'_'.join((f'[gt:{ground_truth},pred:{prediction}]',fname)))
+
+        plot_grad_cam(
+            image = image,
+            category_list = category_list, 
+            confidence_list = confidence_list,
+            XAI_list = XAI_list,
+            saving_path = saving_path
+        )
         
-        fig,ax = plt.subplots(1,2,figsize=(20,20))
-        ax[0].imshow(image)
-        ax[0].axis('off')
-        ax[0].title.set_text(f'Ground truth: {ground_truth}')
-        ax[1].imshow(image_interpretable)
-        ax[1].axis('off')
-        ax[1].title.set_text(f'Prediction: {prediction}')
-        
-        plt.savefig(os.path.join(XAI_path,'_'.join((f'[gt:{ground_truth},pred:{prediction}]',fname))))
-        plt.show()
 
     model.train()
 
@@ -437,6 +445,7 @@ def train_crossvalidation(**kwargs):
     num_workers = kwargs.get('num_workers',4)
     batch_size = kwargs.get('batch_size',64)
     weighted_loss = kwargs.get('weighted_loss',True)
+    sample = kwargs.get('sample',1.0)
 
     img_aug = kwargs.get('img_aug',0.5)
 
@@ -463,6 +472,8 @@ def train_crossvalidation(**kwargs):
 
     #load data
     df = path2DataFrame(data_dir)
+
+    df = df.groupby('category').apply(lambda x: x.sample(frac=sample))
     
     #remove after testing
     #df = df.sample(frac=0.1)

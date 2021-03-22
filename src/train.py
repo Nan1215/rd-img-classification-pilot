@@ -61,6 +61,7 @@ if __name__ == '__main__':
     parser.add_argument('--batch_size', required=False)
     parser.add_argument('--weighted_loss', required=False)
     parser.add_argument('--img_aug', required=False)
+    parser.add_argument('--sample', required=False)
 
     args = parser.parse_args()
 
@@ -114,6 +115,11 @@ if __name__ == '__main__':
     else:
       img_aug = float(args.img_aug)
 
+    if not args.sample:
+      sample = 1.0
+    else:
+      sample = float(args.sample)
+
 
     train_crossvalidation(
         data_dir = args.data_dir ,
@@ -126,7 +132,8 @@ if __name__ == '__main__':
         num_workers = num_workers,
         batch_size = batch_size,
         weighted_loss = weighted_loss,
-        img_aug = img_aug
+        img_aug = img_aug,
+        sample = sample
     )
 
 
