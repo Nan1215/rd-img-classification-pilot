@@ -35,10 +35,9 @@ Once the vocabulary is defined, we can query the Europeana Search API for CHOs i
 
 The resulting table should have the columns `category`, `skos_concept`, `URI`, `URL`, `ID`. This allows to uniquely identify the CHOs and the images, and potentially use Europeana's [Record API](https://pro.europeana.eu/page/record) for retrieving further information about the objects. We have included the dataset `dataset.csv` as an example of querying 3000 CHOs per category.
 
- (TO DO) Remove images present in evaluation data
+Remove images present in evaluation data
 
 `python src/remove_test_from_train.py --training_set dataset_3000_random.csv --evaluation_set eval_dataset.csv --saving_dir .`
-
 
 Once we have the URL for the images we will save them in disk under directories corresponding to the different categories. This step is required for training the model. We can do that by specifying the path to the dataset in csv format and the directory for the images.
 
@@ -51,25 +50,19 @@ We are ready to proceed with training our model! To make sure that we evaluate t
 
 `python src/train.py --data_dir training_data --epochs 100 --patience 10 --experiment_name model_training --img_aug 0.5`
 
-to do: point to the notebook for analyzing the crossvalidation data
-
-
-The code for training a single split is in the notebook [jupyter notebook training](https://github.com/europeana/rd-img-classification-pilot/blob/main/notebooks/train.ipynb)
-
 
 ## Inference
 
-`class_index.json`
+Once the model is trained, it can be used for predicting on unseen images.
 
-`checkpoint.pth`
+We have manually gathered a set of images for evaluation, together with their correct labels
 
-[jupyter notebook inference](https://github.com/europeana/rd-img-classification-pilot/blob/main/notebooks/inference.ipynb)
+[colab notebook inference evaluation set](https://colab.research.google.com/drive/1Ma8O1hWhUNRlrJBDZO4Rhwzg4MlAVAFa?usp=sharing#offline=true&sandboxMode=true)
 
-#to do: link to colab
+We can also apply the model to images from CHOs retrieved using the Search API
 
 [colab notebook inference search API](https://colab.research.google.com/drive/1B3S_DYQ6UtCYGaScygcf_BZa0Ifml4SR?usp=sharing#offline=true&sandboxMode=true)
 
-[colab notebook inference evaluation set](https://colab.research.google.com/drive/1Ma8O1hWhUNRlrJBDZO4Rhwzg4MlAVAFa?usp=sharing#offline=true&sandboxMode=true)
 
 
 
