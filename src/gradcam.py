@@ -43,26 +43,6 @@ def to_RGB(tensor):
     image = np.uint8(255 * image_binary)
     return image
 
-# def grad_cam(model, image, heatmap_layer, transform, device, truelabel=None):
-    
-#     input_tensor = transform(image)
-#     input_tensor = input_tensor.to(device)
-#     info = InfoHolder(heatmap_layer)
-#     heatmap_layer.register_forward_hook(info.hook)
-#     output = model(input_tensor.unsqueeze(0))[0]
-#     truelabel = truelabel if truelabel else torch.argmax(output)
-#     output[truelabel].backward()
-#     weights = torch.mean(info.gradient, [0, 2, 3])
-#     activation = info.activation.squeeze(0)
-#     weighted_activation = torch.zeros(activation.shape)
-#     for idx, (weight, activation) in enumerate(zip(weights, activation)):
-#         weighted_activation[idx] = weight * activation
-
-#     heatmap = generate_heatmap(weighted_activation)
-    
-#     return superimpose(np.asarray(image),heatmap), truelabel.item(), output[truelabel].item()
-
-
 def predict_grad_cam(**kwargs):
     
     model = kwargs.get('model')

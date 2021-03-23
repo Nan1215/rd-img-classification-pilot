@@ -20,8 +20,9 @@ def parse_CHO(item):
 
   return ID,URI,URL
 
+
+
 class EuropeanaAPI:
-    
   def __init__(self,wskey):
     self.wskey = wskey
 
