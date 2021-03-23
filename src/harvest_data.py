@@ -16,50 +16,73 @@ def parse_CHO(item):
 
   return ID,URI,URL
 
+class EuropeanaAPI:
+    
+  def __init__(self,wskey):
+    self.wskey = wskey
+
+  def search(self,**kwargs):
+
+    skos_concept = kwargs.get('skos_concept')
+    query = kwargs.get('query','*')
+    reusability = kwargs.get('reusability','open')
+    n = kwargs.get('n',20)
+    
+    params = {
+        'reusability':reusability,
+        'media':True,
+        'qf':f'(skos_concept:"{skos_concept}" AND TYPE:IMAGE )' if skos_concept else 'TYPE:IMAGE', 
+        'query':"*" if skos_concept else query, 
+        'wskey':self.wskey,
+        'sort':'random,europeana_id',
+    }
+
+    CHO_list = []
+    
+    response = {'nextCursor':'*'}
+    while 'nextCursor' in response:
+      if len(CHO_list)>n:
+        break
+      params.update({'cursor':response['nextCursor']})
+      response = requests.get('https://www.europeana.eu/api/v2/search.json', params = params).json()      
+      CHO_list += response['items']
+
+    return CHO_list[:n]
+
     
 def query_single_category(**kwargs):  
+  """
+
+  """
   category = kwargs.get('category')
   skos_concept = kwargs.get('skos_concept')
   n = kwargs.get('n')
   reusability = kwargs.get('reusability','open')
 
-  """
 
-  """
+  eu = EuropeanaAPI('api2demo')
 
-  params = {
-      'reusability':reusability,
-      'media':True,
-      'qf':f'(skos_concept:"{skos_concept}" AND TYPE:IMAGE )', 
-      'query':'*', 
-      'wskey':'api2demo',
-      'sort':'random,europeana_id',
-  }
+  CHO_retrieved = eu.search(
+     skos_concept = skos_concept,
+     reusability = reusability,
+     n = n,
+  )
 
   CHO_list = []
-  response = {'nextCursor':'*'}
-  while 'nextCursor' in response:
-    
-    if len(CHO_list)>n:
-      break
+  for CHO in CHO_retrieved:
 
-    params.update({'cursor':response['nextCursor']})
-    response = requests.get('https://www.europeana.eu/api/v2/search.json', params = params).json()
+    ID,URI,URL = parse_CHO(CHO)
 
-    for CHO in response['items']:
+    if URL:
+      CHO_list.append({
+        'category':category,
+        'skos_concept':skos_concept,
+        'URI':URI,
+        'ID':ID,
+        'URL':URL
+        })
 
-      ID,URI,URL = parse_CHO(CHO)
-
-      if URL:
-        CHO_list.append({
-          'category':category,
-          'skos_concept':skos_concept,
-          'URI':URI,
-          'ID':ID,
-          'URL':URL
-          })
-
-  return pd.DataFrame(CHO_list[:n])
+  return pd.DataFrame(CHO_list)
 
 
 def main(**kwargs):
