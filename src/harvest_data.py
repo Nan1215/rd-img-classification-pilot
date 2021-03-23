@@ -6,6 +6,10 @@ import argparse
 
 from ds_utils import create_dir
 
+def filename_to_id(filename):
+  filename = os.path.split(filename)[1]
+  return filename.replace('[ph]','/').replace('.jpg','')
+
 def parse_CHO(item):
   ID = item['id']
   URI = 'http://data.europeana.eu/item'+ID
@@ -20,6 +24,14 @@ class EuropeanaAPI:
     
   def __init__(self,wskey):
     self.wskey = wskey
+
+  def record(self,id):
+    params = {'wskey':self.wskey}
+    response = requests.get(f'https://api.europeana.eu/record/v2/{id}.json',params=params).json()  
+    try:
+      return response['object']['aggregations'][0]['edmIsShownBy']
+    except:
+      return None
 
   def search(self,**kwargs):
 
