@@ -31,6 +31,7 @@ def train(**kwargs):
     rr_prob = kwargs.get('rr_prob',0.5) # random rotation
     memory_bank_size = kwargs.get('memory_bank_size',4096)
     model_name = kwargs.get('model_name','simclr') # simclr or moco
+    model_size = kwargs.get('model_size',18) # simclr or moco
 
     if model_name == 'moco':
         print('memory_bank_size:',memory_bank_size)
@@ -45,6 +46,7 @@ def train(**kwargs):
     conf = {
         'num_ftrs':num_ftrs,
         'model_name':model_name,
+        'model_size':model_size,
         'max_epochs':max_epochs,
         'input_size':input_size,
         'batch_size':batch_size,
@@ -112,7 +114,7 @@ def train(**kwargs):
         num_workers=num_workers
     )
 
-    resnet = lightly.models.ResNetGenerator('resnet-18')
+    resnet = lightly.models.ResNetGenerator('resnet-'+str(model_size))
     last_conv_channels = list(resnet.children())[-1].in_features
     backbone = nn.Sequential(
         *list(resnet.children())[:-1],
@@ -166,6 +168,7 @@ def main(**kwargs):
     rr_prob = kwargs.get('rr_prob',0.5) # random rotation
     memory_bank_size = kwargs.get('memory_bank_size',4096)
     model_name = kwargs.get('model_name','simclr') # simclr or moco
+    model_size = kwargs.get('model_size',18) # backbone size
     experiment_name = kwargs.get('experiment_name','experiment')
 
     if not data_path:
@@ -185,6 +188,7 @@ def main(**kwargs):
         vf_prob = vf_prob,
         rr_prob = rr_prob,
         model_name = model_name,
+        model_size = model_size,
         memory_bank_size = memory_bank_size,
         experiment_name = experiment_name
         )

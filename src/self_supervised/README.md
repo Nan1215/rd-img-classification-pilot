@@ -1,1 +1,1 @@
-`python src/self_supervised/train.py --model_name simclr --data_path ../training_data_500 --max_epochs 300 --saving_dir ../self_supervised_results  --batch_size 128 --input_size 64 --num_ftrs 512 --hf_prob 0.5 --vf_prob 0.5 --rr_prob 0.5 --experiment_name simclr`
+`python src/self_supervised/train.py --model_name simclr --model_size 50 --data_path ../training_data_500 --max_epochs 300 --saving_dir ../self_supervised_results  --batch_size 64 --input_size 64 --num_ftrs 512 --hf_prob 0.5 --vf_prob 0.5 --rr_prob 0.5 --experiment_name simclr`

@@ -31,7 +31,7 @@ For our experiments we will use a selection of terms from that list, which are b
 
 Once the vocabulary is defined, we can query the Europeana Search API for CHOs in the different categories and build a table with the information necessary to assemble an image classification dataset. We can do that from the command line by specifying the vocabulary file to consider, the maximum number of CHOs retrieved per category and an optional name for the resulting file:
 
-`python src/harvest_data.py --vocab_json vocabularies/vocabulary.json --n 3000 --name dataset --saving_dir data`
+`python src/harvest_data.py --vocab_json vocabularies/vocabulary.json --n 3000 --name dataset --saving_dir data --reusability open`
 
 The resulting table should have the columns `category`, `skos_concept`, `URI`, `URL`, `ID`. This allows to uniquely identify the CHOs and the images, and potentially use Europeana's [Record API](https://pro.europeana.eu/page/record) for retrieving further information about the objects. We have included the dataset `dataset.csv` as an example of querying 3000 CHOs per category.
 
@@ -48,7 +48,7 @@ Once we have the URL for the images we will save them in disk under directories 
 
 We are ready to proceed with training our model! To make sure that we evaluate the performance of the model fairly, we will consider several train, validation and test splits in a process called [cross-validation](https://en.wikipedia.org/wiki/Cross-validation_(statistics)). The result will be a set of directories (one per split) containing the training history, model checkpoint and interpretable heatmaps for the test images. We can use the script `train_crossvalidation.py` by specifying the directory to the dataset and some of the training hyperparameters:
 
-`python src/train.py --data_dir ../training_data --epochs 100 --patience 10 --experiment_name model_training --img_aug 0.5 `
+`python src/train.py --data_dir ../training_data --epochs 100 --patience 10 --experiment_name model_training --img_aug 0.5 --saving_dir ../ `
 
 
 ## Inference
