@@ -11,5 +11,5 @@ Download images
 
 Train 
 
-`python src/multilabel/train_multilabel.py --data_dir ../training_data_multilabel --annotations multilabel_dataset.csv  --epochs 100 --patience 10 --experiment_name multilabel_training --img_aug 0.5 --saving_dir ../ `
+`python src/multilabel/train_multilabel.py --data_dir ../training_data_multilabel --annotations data/multilabel/multilabel_dataset.csv  --max_epochs 100 --saving_dir ../results_multilabel`
 
