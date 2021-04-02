@@ -25,8 +25,8 @@ def download_single_image(url,ID,saving_dir):
       except:
           pass
 
-def download_images(csv_path,saving_dir):
-    
+def download_single_label_dataset(csv_path,saving_dir,mode):
+
     time_limit = 7
 
     create_dir(saving_dir)
@@ -44,6 +44,37 @@ def download_images(csv_path,saving_dir):
             action_process.start()
             action_process.join(timeout=time_limit) 
             action_process.terminate()
+
+def download_multi_label_dataset(csv_path,saving_dir,mode):
+
+    time_limit = 7
+
+    create_dir(saving_dir)
+    df = pd.read_csv(csv_path)
+
+    # for cat in df.category.unique():
+    #     print(cat)
+    #     df_category = df.loc[df['category'] == cat]
+    #     cat_path = os.path.join(saving_dir,cat)
+    #     create_dir(cat_path)
+
+    for ID,URL in zip(df['ID'].values,df['URL'].values):
+    
+        action_process = Process(target=download_single_image,args=(URL,ID,saving_dir))
+        action_process.start()
+        action_process.join(timeout=time_limit) 
+        action_process.terminate()
+
+def download_images(csv_path,saving_dir,mode):
+
+    if not mode:
+        mode = 'single_label'
+
+    if mode == 'single_label':
+        download_single_label_dataset(csv_path,saving_dir,mode)
+    elif mode == 'multi_label':
+        download_multi_label_dataset(csv_path,saving_dir,mode)
+
 
 
 if __name__ == "__main__":
@@ -69,9 +100,10 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--csv_path', required=True)
     parser.add_argument('--saving_dir', required=True)
+    parser.add_argument('--mode', required=False)
     args = parser.parse_args()
 
-    download_images(args.csv_path,args.saving_dir)
+    download_images(args.csv_path,args.saving_dir,args.mode)
 
 
 
