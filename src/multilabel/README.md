@@ -7,7 +7,7 @@ Harvest data
 
 Download images
 
-`python src/download_images.py --csv_path data/dataset.csv --saving_dir ../training_data_multilabel --mode multi_label`
+`python src/download_images.py --csv_path data/multilabel/multilabel_dataset.csv --saving_dir ../training_data_multilabel --mode multi_label`
 
 Train 
 
