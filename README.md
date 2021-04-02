@@ -31,7 +31,7 @@ For our experiments we will use a selection of terms from that list, which are b
 
 Once the vocabulary is defined, we can query the Europeana Search API for CHOs in the different categories and build a table with the information necessary to assemble an image classification dataset. We can do that from the command line by specifying the vocabulary file to consider, the maximum number of CHOs retrieved per category and an optional name for the resulting file:
 
-`python src/harvest_data.py --vocab_json vocabularies/vocabulary.json --n 3000 --name dataset --saving_dir data --reusability open`
+`python src/harvest_data_single_label.py --vocab_json vocabularies/vocabulary.json --n 3000 --name dataset --saving_dir data --reusability open`
 
 The resulting table should have the columns `category`, `skos_concept`, `URI`, `URL`, `ID`. This allows to uniquely identify the CHOs and the images, and potentially use Europeana's [Record API](https://pro.europeana.eu/page/record) for retrieving further information about the objects. We have included the dataset `dataset.csv` as an example of querying 3000 CHOs per category.
 
@@ -41,7 +41,7 @@ Remove images present in evaluation data
 
 Once we have the URL for the images we will save them in disk under directories corresponding to the different categories. This step is required for training the model. We can do that by specifying the path to the dataset in csv format and the directory for the images.
 
-`python src/download_images.py --csv_path data/dataset.csv --saving_dir ../training_data`
+`python src/download_images.py --csv_path data/dataset.csv --saving_dir ../training_data --mode single_label`
 
 
 ## Training the model
