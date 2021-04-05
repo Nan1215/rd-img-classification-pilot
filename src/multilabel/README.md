@@ -11,5 +11,5 @@ Download images
 
 Train 
 
-`python src/train_multilabel.py --data_dir ../training_data_multilabel --annotations data/multilabel/multilabel_dataset.csv --saving_dir ../results_multilabel --input_size 64 --batch_size 64 --learning_rate 1e-5 --resnet_size 18 --max_epochs 100 --num_workers 4`
+`python src/train_multilabel.py --data_dir ../training_data_multilabel --annotations data/multilabel/multilabel_dataset.csv --saving_dir ../results_multilabel --input_size 64 --batch_size 16 --learning_rate 1e-5 --resnet_size 18 --max_epochs 100 --num_workers 4`
 

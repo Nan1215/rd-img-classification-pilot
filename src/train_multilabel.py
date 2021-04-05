@@ -207,14 +207,14 @@ def train(**kwargs):
 
 
 def main(**kwargs):
-  max_epochs = kwargs.get('max_epochs',100)
+  max_epochs = kwargs.get('max_epochs')
   annotations = kwargs.get('annotations')
   data_dir = kwargs.get('data_dir')
   saving_dir = kwargs.get('saving_dir')
-  input_size = kwargs.get('input_size',64)
-  batch_size = kwargs.get('batch_size',32)
-  num_workers = kwargs.get('num_workers',4)
-  learning_rate = kwargs.get('learning_rate',0.00001)
+  input_size = kwargs.get('input_size')
+  batch_size = kwargs.get('batch_size')
+  num_workers = kwargs.get('num_workers')
+  learning_rate = kwargs.get('learning_rate')
 
   data_dir = Path(data_dir)
   df_path = Path(annotations)
@@ -275,9 +275,9 @@ def main(**kwargs):
   testset = MultilabelDataset(imgs_test,labels_test,transform = test_transform)
   testloader = DataLoader(testset, batch_size=batch_size,shuffle=True, num_workers=num_workers,drop_last=True)
 
-  print('train:',len(trainset))
-  print('val:',len(valloader))
-  print('test:',len(testloader))
+  print('train:',imgs_train.shape[0])
+  print('val:',imgs_val.shape[0])
+  print('test:',imgs_test.shape[0])
 
   device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
   model = MultilabelResNet(18,labels.shape[1]).to(device)
@@ -380,6 +380,11 @@ if __name__ == '__main__':
     else:
       learning_rate = float(args.learning_rate)
 
+    if not args.input_size:
+      input_size = 64
+    else:
+      input_size = int(args.input_size)
+
     if not args.max_epochs:
       max_epochs = 100
     else:
@@ -412,6 +417,7 @@ if __name__ == '__main__':
         resnet_size = resnet_size,
         num_workers = num_workers,
         batch_size = batch_size,
+        input_size = input_size
     )
 
 
