@@ -35,6 +35,8 @@ def save_class_index(class_index,path):
     with open(os.path.join(path,'class_index.json'),'w') as f:
         json.dump(class_index,f)
 
+
+
 def load_model(root_path, device, resnet_size = 34):
 
     with open(os.path.join(root_path,'class_index.json'),'r') as f:

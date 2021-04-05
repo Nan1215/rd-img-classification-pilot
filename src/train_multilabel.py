@@ -79,6 +79,29 @@ class MultilabelDataset(Dataset):
         return img,label,img_path
 
 
+def load_multilabel_model(root_path, device, resnet_size = 18):
+
+    with open(os.path.join(root_path,'class_index.json'),'r') as f:
+        class_index_dict = json.load(f)
+
+    class_index_dict = {int(k):v for k,v in class_index_dict.items()}
+
+    checkpoint_path = os.path.join(root_path,'checkpoint.pth')
+
+    model = MultilabelResNet(resnet_size,len(class_index_dict)).to(device)
+
+    #model = ResNet(resnet_size,len(class_index_dict))
+    if not torch.cuda.is_available():
+        model.load_state_dict(torch.load(checkpoint_path,map_location=torch.device('cpu')))
+    else:
+        model.load_state_dict(torch.load(checkpoint_path))
+
+    model = model.to(device)
+    model.eval()
+
+    return model, class_index_dict
+
+
 def print_metrics(metrics):
     loss = metrics['loss']
     coverage = metrics['coverage']
