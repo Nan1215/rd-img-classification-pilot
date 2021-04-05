@@ -213,13 +213,30 @@ def main(**kwargs):
   saving_dir = kwargs.get('saving_dir')
   input_size = kwargs.get('input_size',64)
   batch_size = kwargs.get('batch_size',32)
-  num_workers = kwargs.get('num_workers',8)
+  num_workers = kwargs.get('num_workers',4)
   learning_rate = kwargs.get('learning_rate',0.00001)
 
   data_dir = Path(data_dir)
   df_path = Path(annotations)
   saving_dir = Path(saving_dir)
   saving_dir.mkdir(parents=True, exist_ok=True)
+
+  train_transform = transforms.Compose([
+      transforms.Resize((input_size, input_size)),
+      transforms.RandomHorizontalFlip(0.5),
+      transforms.RandomVerticalFlip(0.5),
+      transforms.ToTensor(),
+      # this normalization is required https://pytorch.org/tutorials/beginner/finetuning_torchvision_models_tutorial.html
+      transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
+  ])
+
+
+  test_transform = transforms.Compose([
+      transforms.Resize((input_size, input_size)),
+      transforms.ToTensor(),
+      # this normalization is required https://pytorch.org/tutorials/beginner/finetuning_torchvision_models_tutorial.html
+      transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
+  ])
 
   df = pd.read_csv(df_path)
   #filter images in df contained in data_path
@@ -241,28 +258,13 @@ def main(**kwargs):
   class_index_dict = {i:c for i,c in enumerate(mlb.classes_)}
 
   #save class index dict
-  save_json(class_index_dict,saving_dir.joinpath('class_index_dict.json'))
+  save_json(class_index_dict,saving_dir.joinpath('class_index.json'))
 
   #train test split
   imgs_train,imgs_evaluation,labels_train,labels_evaluation = train_test_split(imgs,labels,test_size = 0.3)
   imgs_val,imgs_test,labels_val,labels_test = train_test_split(imgs_evaluation,labels_evaluation,test_size = 0.5)
 
-  train_transform = transforms.Compose([
-      transforms.Resize((input_size, input_size)),
-      transforms.RandomHorizontalFlip(0.5),
-      transforms.RandomVerticalFlip(0.5),
-      transforms.ToTensor(),
-      # this normalization is required https://pytorch.org/tutorials/beginner/finetuning_torchvision_models_tutorial.html
-      transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
-  ])
 
-
-  test_transform = transforms.Compose([
-      transforms.Resize((input_size, input_size)),
-      transforms.ToTensor(),
-      # this normalization is required https://pytorch.org/tutorials/beginner/finetuning_torchvision_models_tutorial.html
-      transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
-  ])
 
   trainset = MultilabelDataset(imgs_train,labels_train,transform = train_transform)
   trainloader = DataLoader(trainset, batch_size=batch_size,shuffle=True, num_workers=num_workers,drop_last=True)
@@ -273,6 +275,9 @@ def main(**kwargs):
   testset = MultilabelDataset(imgs_test,labels_test,transform = test_transform)
   testloader = DataLoader(testset, batch_size=batch_size,shuffle=True, num_workers=num_workers,drop_last=True)
 
+  print('train:',len(trainset))
+  print('val:',len(valloader))
+  print('test:',len(testloader))
 
   device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
   model = MultilabelResNet(18,labels.shape[1]).to(device)
