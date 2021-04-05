@@ -118,6 +118,9 @@ def evaluate(**kwargs):
     
     return {'loss':val_loss,'coverage':coverage,'lrap':lrap,'label_ranking_loss':label_ranking_loss}
 
+def save_json(metrics,path):
+  with open(path,'w') as f:
+    json.dump(metrics,f)
 
 def train(**kwargs):
     model = kwargs.get('model')
@@ -125,10 +128,11 @@ def train(**kwargs):
     valloader = kwargs.get('valloader')
     device = kwargs.get('device')
     optimizer = kwargs.get('optimizer')
+    scheduler = kwargs.get('scheduler')
     loss_function = kwargs.get('loss_function')
     saving_dir = kwargs.get('saving_dir')
     max_epochs = kwargs.get('max_epochs',100)
-    patience = kwargs.get('patience',3)
+    patience = kwargs.get('patience',5)
 
     model.train()
 
@@ -160,6 +164,9 @@ def train(**kwargs):
             device = device
         )
         print_metrics(val_metrics)
+
+        if scheduler:
+          scheduler.step()
         
         if val_metrics['loss'] < best_loss:
             best_loss = val_metrics['loss']
@@ -177,15 +184,14 @@ def train(**kwargs):
 
 
 def main(**kwargs):
-  max_epochs = kwargs.get('max_epochs',50)
+  max_epochs = kwargs.get('max_epochs',100)
   annotations = kwargs.get('annotations')
   data_dir = kwargs.get('data_dir')
   saving_dir = kwargs.get('saving_dir')
   input_size = kwargs.get('input_size',64)
   batch_size = kwargs.get('batch_size',32)
-  num_workers = kwargs.get('num_workers',2)
+  num_workers = kwargs.get('num_workers',8)
   learning_rate = kwargs.get('learning_rate',0.00001)
-  num_workers = kwargs.get('max_epochs',100)
 
   data_dir = Path(data_dir)
   df_path = Path(annotations)
@@ -210,6 +216,9 @@ def main(**kwargs):
   labels = mlb.fit_transform(labels)
 
   class_index_dict = {i:c for i,c in enumerate(mlb.classes_)}
+
+  #save class index dict
+  save_json(class_index_dict,saving_dir.joinpath('class_index_dict.json'))
 
   #train test split
   imgs_train,imgs_evaluation,labels_train,labels_evaluation = train_test_split(imgs,labels,test_size = 0.3)
@@ -268,10 +277,7 @@ def main(**kwargs):
   )
   print('Test')
   print_metrics(test_metrics)
-
-
-
-    
+  save_json(test_metrics,saving_dir.joinpath('test_metrics.json'))
 
   return 
 
@@ -358,7 +364,7 @@ if __name__ == '__main__':
 
 
     if not args.num_workers:
-      num_workers = 4
+      num_workers = 8
     else:
       num_workers = int(args.num_workers)
 
