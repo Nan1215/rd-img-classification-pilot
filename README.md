@@ -48,7 +48,7 @@ Once we have the URL for the images we will save them in disk under directories 
 
 We are ready to proceed with training our model! To make sure that we evaluate the performance of the model fairly, we will consider several train, validation and test splits in a process called [cross-validation](https://en.wikipedia.org/wiki/Cross-validation_(statistics)). The result will be a set of directories (one per split) containing the training history, model checkpoint and interpretable heatmaps for the test images. We can use the script `train_crossvalidation.py` by specifying the directory to the dataset and some of the training hyperparameters:
 
-`python src/train.py --data_dir ../training_data --epochs 100 --patience 10 --experiment_name model_training --img_aug 0.5 --saving_dir ../ `
+`python src/train_single_label.py --data_dir ../training_data --epochs 100 --patience 10 --experiment_name model_training --img_aug 0.5 --saving_dir ../ `
 
 
 ## Inference
