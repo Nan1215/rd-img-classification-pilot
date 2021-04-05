@@ -135,11 +135,11 @@ def main(**kwargs):
     max_n_categories = 3
     combinations_list = combine_categories(vocab_dict,min_n_categories,max_n_categories)
 
-    combination_df = search_number_combinations(combinations_list,vocab_dict,'open')
-    combination_df.to_csv(os.path.join(saving_dir,'combinations.csv'),index=False)
+    combination_df = search_number_combinations(combinations_list,vocab_dict,reusability)
+    combination_df.to_csv(os.path.join(saving_dir,f'combinations_{reusability}.csv'),index=False)
 
-    df = assemble_multilabel_dataset(combination_df,vocab_dict,'open',n)
-    df.to_csv(os.path.join(saving_dir,'multilabel_dataset.csv'),index=False)
+    df = assemble_multilabel_dataset(combination_df,vocab_dict,reusability,n)
+    df.to_csv(os.path.join(saving_dir,f'multilabel_dataset_{reusability}.csv'),index=False)
 
 
 

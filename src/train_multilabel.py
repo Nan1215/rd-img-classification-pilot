@@ -205,6 +205,35 @@ def train(**kwargs):
 
     return model
 
+def drop_categories(df,cat_list):
+    if isinstance(cat_list,str):
+        cat_list = [cat_list]
+    
+    _df = df.copy()
+    for cat in cat_list:
+        _df = _df.loc[_df['category'].apply(lambda x: cat not in x)]
+    return _df
+
+def calculate_weights(df,class_index_dict):
+  unique_categories = []
+  for cat in df['category'].values:
+      unique_categories += cat.split()
+      
+  unique_categories = list(set(unique_categories))
+
+  occurrence_dict = {}
+  for cat in unique_categories:
+      occurrence_dict.update({cat:df.loc[df['category'].apply(lambda x: cat in x)].shape[0]})
+  total = sum(occurrence_dict.values())
+  weights_dict = {k:total/v for k,v in occurrence_dict.items()}
+
+  weights_list = []
+  for i in range(len(class_index_dict)):
+    weights_list.append(weights_dict[class_index_dict[i]])
+
+  weights_torch = torch.tensor(weights_list)
+  return weights_torch
+
 
 def main(**kwargs):
   max_epochs = kwargs.get('max_epochs')
@@ -243,9 +272,11 @@ def main(**kwargs):
   imgs_list = list(data_dir.iterdir())
   df['filepath'] = df['ID'].apply(lambda x:data_dir.joinpath(id_to_filename(x)+'.jpg'))
   df = df.loc[df['filepath'].apply(lambda x: Path(x) in imgs_list)]
+
   df['n_labels'] = df['category'].apply(lambda x: len(x.split()))
   df = df.sort_values(by='n_labels',ascending=False)
-  df = df.drop_duplicates()
+  df = df.drop_duplicates(keep='first',subset='ID')
+  df = drop_categories(df,['specimen','clothing'])
   print(df.shape)
 
   mlb = sklearn.preprocessing.MultiLabelBinarizer()
@@ -256,12 +287,14 @@ def main(**kwargs):
   labels = mlb.fit_transform(labels)
 
   class_index_dict = {i:c for i,c in enumerate(mlb.classes_)}
+  
+  print(class_index_dict)
 
   #save class index dict
   save_json(class_index_dict,saving_dir.joinpath('class_index.json'))
 
   #train test split
-  imgs_train,imgs_evaluation,labels_train,labels_evaluation = train_test_split(imgs,labels,test_size = 0.3)
+  imgs_train,imgs_evaluation,labels_train,labels_evaluation = train_test_split(imgs,labels,test_size = 0.2)
   imgs_val,imgs_test,labels_val,labels_test = train_test_split(imgs_evaluation,labels_evaluation,test_size = 0.5)
 
 
@@ -282,7 +315,9 @@ def main(**kwargs):
   device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
   model = MultilabelResNet(18,labels.shape[1]).to(device)
 
-  loss_function = nn.BCEWithLogitsLoss()
+  weights = calculate_weights(df,class_index_dict).to(device)
+  print(weights)
+  loss_function = nn.BCEWithLogitsLoss(pos_weight = weights)
   optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
   model = train(
